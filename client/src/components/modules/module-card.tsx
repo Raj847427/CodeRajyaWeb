@@ -2,6 +2,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { useToast } from "@/hooks/use-toast";
+import { useLocation } from "wouter";
 import { BookOpen, Play, CheckCircle } from "lucide-react";
 
 interface ModuleCardProps {
@@ -36,8 +38,32 @@ export default function ModuleCard({
   isCompleted = false,
   testId = `module-card-${module.id}`
 }: ModuleCardProps) {
+  const { toast } = useToast();
+  const [, setLocation] = useLocation();
   const IconComponent = getIconComponent(module.icon);
   const difficultyColor = difficultyColors[module.difficulty as keyof typeof difficultyColors] || 'bg-gray-100 text-gray-800';
+  
+  const handleModuleAction = () => {
+    let actionMessage = "";
+    
+    if (isCompleted) {
+      actionMessage = `Reviewing ${module.title}. Opening module content...`;
+    } else if (progress > 0) {
+      actionMessage = `Continuing ${module.title} from ${progress}% completion...`;
+    } else {
+      actionMessage = `Starting ${module.title}. Welcome to your learning journey!`;
+    }
+    
+    toast({
+      title: "Module Action",
+      description: actionMessage,
+    });
+    
+    // Navigate to module details page or open in new tab
+    setTimeout(() => {
+      window.open('/learning-module', '_blank');
+    }, 1000);
+  };
 
   return (
     <Card className="hover:shadow-md transition-shadow cursor-pointer" data-testid={testId}>
@@ -88,6 +114,7 @@ export default function ModuleCard({
                   ? "bg-primary-600 hover:bg-primary-700" 
                   : "bg-primary-600 hover:bg-primary-700"
             } text-white`}
+            onClick={handleModuleAction}
             data-testid={`${testId}-action-button`}
           >
             {isCompleted ? (

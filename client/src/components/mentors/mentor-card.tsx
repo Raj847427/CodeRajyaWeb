@@ -2,6 +2,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useToast } from "@/hooks/use-toast";
 import { Star, Calendar, DollarSign } from "lucide-react";
 
 interface MentorCardProps {
@@ -28,8 +29,31 @@ export default function MentorCard({
   mentor,
   testId = `mentor-card-${mentor.id}`
 }: MentorCardProps) {
+  const { toast } = useToast();
+  
   const getInitials = (firstName?: string, lastName?: string) => {
     return `${firstName?.[0] || ''}${lastName?.[0] || ''}`.toUpperCase() || 'M';
+  };
+  
+  const handleBookSession = () => {
+    if (!mentor.isAvailable) {
+      toast({
+        title: "Mentor Unavailable",
+        description: "This mentor is currently not available for booking.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    toast({
+      title: "Session Booking",
+      description: `Booking session with ${mentor.user.firstName} ${mentor.user.lastName}. Redirecting to booking page...`,
+    });
+    
+    // Redirect to booking page or open booking modal
+    setTimeout(() => {
+      window.open('/book-session', '_blank');
+    }, 1000);
   };
 
   const formatRating = (rating: number) => {
@@ -105,6 +129,7 @@ export default function MentorCard({
               <Button 
                 className="flex-1 bg-primary-600 hover:bg-primary-700 text-white" 
                 disabled={!mentor.isAvailable}
+                onClick={handleBookSession}
                 data-testid={`${testId}-book-button`}
               >
                 {mentor.isAvailable ? 'Book Session' : 'Unavailable'}

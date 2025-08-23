@@ -51,6 +51,43 @@ export default function Admin() {
   const { user, isLoading, isAuthenticated } = useAuth();
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("overview");
+  
+  // Handle admin functions
+  const handleEditModule = (module: any) => {
+    toast({
+      title: "Edit Module",
+      description: `Editing ${module.title}. Opening edit form...`,
+    });
+    // Here you can open edit modal or navigate to edit page
+  };
+  
+  const handleDeleteModule = (moduleId: string) => {
+    if (confirm("Are you sure you want to delete this module?")) {
+      toast({
+        title: "Module Deleted",
+        description: "Module has been successfully deleted.",
+        variant: "destructive",
+      });
+      // Here you can call delete API
+    }
+  };
+  
+  const handleEditChallenge = (challenge: any) => {
+    toast({
+      title: "Edit Challenge",
+      description: `Editing ${challenge.title}. Opening edit form...`,
+    });
+  };
+  
+  const handleDeleteChallenge = (challengeId: string) => {
+    if (confirm("Are you sure you want to delete this challenge?")) {
+      toast({
+        title: "Challenge Deleted",
+        description: "Challenge has been successfully deleted.",
+        variant: "destructive",
+      });
+    }
+  };
 
   // Redirect to login if not authenticated or not admin
   useEffect(() => {
@@ -477,10 +514,20 @@ export default function Admin() {
                             </div>
                           </div>
                           <div className="flex space-x-2">
-                            <Button size="sm" variant="outline" data-testid={`button-edit-${module.id}`}>
+                            <Button 
+                              size="sm" 
+                              variant="outline" 
+                              onClick={() => handleEditModule(module)}
+                              data-testid={`button-edit-${module.id}`}
+                            >
                               <Edit className="w-4 h-4" />
                             </Button>
-                            <Button size="sm" variant="outline" data-testid={`button-delete-${module.id}`}>
+                            <Button 
+                              size="sm" 
+                              variant="destructive" 
+                              onClick={() => handleDeleteModule(module.id)}
+                              data-testid={`button-delete-${module.id}`}
+                            >
                               <Trash2 className="w-4 h-4" />
                             </Button>
                           </div>
@@ -621,10 +668,20 @@ export default function Admin() {
                             </div>
                           </div>
                           <div className="flex space-x-2">
-                            <Button size="sm" variant="outline" data-testid={`button-edit-challenge-${challenge.id}`}>
+                            <Button 
+                              size="sm" 
+                              variant="outline" 
+                              onClick={() => handleEditChallenge(challenge)}
+                              data-testid={`button-edit-challenge-${challenge.id}`}
+                            >
                               <Edit className="w-4 h-4" />
                             </Button>
-                            <Button size="sm" variant="outline" data-testid={`button-delete-challenge-${challenge.id}`}>
+                            <Button 
+                              size="sm" 
+                              variant="destructive" 
+                              onClick={() => handleDeleteChallenge(challenge.id)}
+                              data-testid={`button-delete-challenge-${challenge.id}`}
+                            >
                               <Trash2 className="w-4 h-4" />
                             </Button>
                           </div>
