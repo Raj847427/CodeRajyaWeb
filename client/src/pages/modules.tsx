@@ -34,12 +34,12 @@ export default function Modules() {
     }
   }, [isAuthenticated, isLoading, toast]);
 
-  const { data: modules, isLoading: modulesLoading } = useQuery({
+  const { data: modules = [], isLoading: modulesLoading } = useQuery({
     queryKey: ["/api/modules"],
     enabled: !!user,
   });
 
-  const { data: userProgress } = useQuery({
+  const { data: userProgress = [] } = useQuery({
     queryKey: ["/api/dashboard/progress"],
     enabled: !!user,
   });
@@ -53,15 +53,15 @@ export default function Modules() {
     </div>;
   }
 
-  const filteredModules = modules?.filter((module: any) => {
+  const filteredModules = Array.isArray(modules) ? modules.filter((module: any) => {
     const matchesSearch = module.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          module.description?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesDifficulty = difficulty === "all" || module.difficulty === difficulty;
     return matchesSearch && matchesDifficulty;
-  }) || [];
+  }) : [];
 
   const getModuleProgress = (moduleId: string) => {
-    return userProgress?.find((p: any) => p.moduleId === moduleId);
+    return Array.isArray(userProgress) ? userProgress.find((p: any) => p.moduleId === moduleId) : undefined;
   };
 
   return (
@@ -169,19 +169,19 @@ export default function Modules() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
               <div>
                 <div className="text-3xl font-bold text-primary-600" data-testid="text-total-modules">
-                  {modules?.length || 0}
+                  {Array.isArray(modules) ? modules.length : 0}
                 </div>
                 <p className="text-gray-600">Total Modules</p>
               </div>
               <div>
                 <div className="text-3xl font-bold text-success-600" data-testid="text-completed-modules">
-                  {userProgress?.filter((p: any) => p.completed).length || 0}
+                  {Array.isArray(userProgress) ? userProgress.filter((p: any) => p.completed).length : 0}
                 </div>
                 <p className="text-gray-600">Completed</p>
               </div>
               <div>
                 <div className="text-3xl font-bold text-accent-600" data-testid="text-in-progress-modules">
-                  {userProgress?.filter((p: any) => p.progress > 0 && !p.completed).length || 0}
+                  {Array.isArray(userProgress) ? userProgress.filter((p: any) => p.progress > 0 && !p.completed).length : 0}
                 </div>
                 <p className="text-gray-600">In Progress</p>
               </div>

@@ -175,12 +175,17 @@ export class DatabaseStorage implements IStorage {
 
   // Mentor operations
   async getMentors(): Promise<(Mentor & { user: User })[]> {
-    return await db
+    const results = await db
       .select()
       .from(mentors)
       .innerJoin(users, eq(mentors.userId, users.id))
       .where(eq(mentors.isAvailable, true))
       .orderBy(desc(mentors.rating));
+    
+    return results.map(result => ({
+      ...result.mentors,
+      user: result.users
+    }));
   }
 
   async getMentor(id: string): Promise<(Mentor & { user: User }) | undefined> {
@@ -189,7 +194,13 @@ export class DatabaseStorage implements IStorage {
       .from(mentors)
       .innerJoin(users, eq(mentors.userId, users.id))
       .where(eq(mentors.id, id));
-    return result;
+    
+    if (!result) return undefined;
+    
+    return {
+      ...result.mentors,
+      user: result.users
+    };
   }
 
   async createMentor(mentor: InsertMentor): Promise<Mentor> {
@@ -199,13 +210,21 @@ export class DatabaseStorage implements IStorage {
 
   // Mentor session operations
   async getMentorSessions(userId: string): Promise<(MentorSession & { mentor: Mentor & { user: User } })[]> {
-    return await db
+    const results = await db
       .select()
       .from(mentorSessions)
       .innerJoin(mentors, eq(mentorSessions.mentorId, mentors.id))
       .innerJoin(users, eq(mentors.userId, users.id))
       .where(eq(mentorSessions.studentId, userId))
       .orderBy(mentorSessions.scheduledAt);
+    
+    return results.map(result => ({
+      ...result.mentor_sessions,
+      mentor: {
+        ...result.mentors,
+        user: result.users
+      }
+    }));
   }
 
   async createMentorSession(session: Omit<MentorSession, 'id' | 'createdAt'>): Promise<MentorSession> {
@@ -215,29 +234,44 @@ export class DatabaseStorage implements IStorage {
 
   // Forum operations
   async getForumPosts(limit: number = 20): Promise<(ForumPost & { author: User })[]> {
-    return await db
+    const results = await db
       .select()
       .from(forumPosts)
       .innerJoin(users, eq(forumPosts.authorId, users.id))
       .orderBy(desc(forumPosts.createdAt))
       .limit(limit);
+    
+    return results.map(result => ({
+      ...result.forum_posts,
+      author: result.users
+    }));
   }
 
   async getForumPost(id: string): Promise<(ForumPost & { author: User; answers: (ForumAnswer & { author: User })[] }) | undefined> {
-    const [post] = await db
+    const [postResult] = await db
       .select()
       .from(forumPosts)
       .innerJoin(users, eq(forumPosts.authorId, users.id))
       .where(eq(forumPosts.id, id));
 
-    if (!post) return undefined;
+    if (!postResult) return undefined;
 
-    const answers = await db
+    const post = {
+      ...postResult.forum_posts,
+      author: postResult.users
+    };
+
+    const answerResults = await db
       .select()
       .from(forumAnswers)
       .innerJoin(users, eq(forumAnswers.authorId, users.id))
       .where(eq(forumAnswers.postId, id))
       .orderBy(desc(forumAnswers.upvotes), forumAnswers.createdAt);
+
+    const answers = answerResults.map(result => ({
+      ...result.forum_answers,
+      author: result.users
+    }));
 
     return { ...post, answers };
   }
@@ -343,7 +377,7 @@ export class DatabaseStorage implements IStorage {
       .from(userProgress)
       .where(eq(userProgress.userId, userId));
     
-    const studyHours = Math.round(progressData.reduce((total, p) => total + (p.progress / 100) * 2, 0));
+    const studyHours = Math.round(progressData.reduce((total, p) => total + ((p.progress || 0) / 100) * 2, 0));
 
     return {
       completedModules: completedModulesResult?.count || 0,

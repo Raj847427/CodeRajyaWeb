@@ -52,17 +52,17 @@ export default function Dashboard() {
     enabled: !!user,
   });
 
-  const { data: progress, isLoading: progressLoading } = useQuery({
+  const { data: progress = [], isLoading: progressLoading } = useQuery({
     queryKey: ["/api/dashboard/progress"],
     enabled: !!user,
   });
 
-  const { data: badges, isLoading: badgesLoading } = useQuery({
+  const { data: badges = [], isLoading: badgesLoading } = useQuery({
     queryKey: ["/api/dashboard/badges"],
     enabled: !!user,
   });
 
-  const { data: modules } = useQuery({
+  const { data: modules = [] } = useQuery({
     queryKey: ["/api/modules"],
   });
 
@@ -76,12 +76,12 @@ export default function Dashboard() {
   }
 
   // Calculate overall progress
-  const overallProgress = progress?.length > 0 
+  const overallProgress = Array.isArray(progress) && progress.length > 0 
     ? Math.round(progress.reduce((acc: number, p: any) => acc + p.progress, 0) / progress.length)
     : 0;
 
-  const currentModules = progress?.filter((p: any) => p.progress > 0 && p.progress < 100) || [];
-  const recentBadges = badges?.slice(0, 3) || [];
+  const currentModules = Array.isArray(progress) ? progress.filter((p: any) => p.progress > 0 && p.progress < 100) : [];
+  const recentBadges = Array.isArray(badges) ? badges.slice(0, 3) : [];
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -91,7 +91,7 @@ export default function Dashboard() {
         {/* Welcome Section */}
         <div className="mb-8">
           <h2 className="text-3xl font-bold text-gray-900 mb-2" data-testid="text-welcome">
-            Welcome back, <span className="text-primary-600">{user?.firstName || 'Coder'}</span>! 👑
+            Welcome back, <span className="text-primary-600">{(user as any)?.firstName || 'Coder'}</span>! 👑
           </h2>
           <p className="text-gray-600" data-testid="text-welcome-subtitle">
             Continue your journey to become a coding king.
@@ -102,7 +102,7 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <StatsCard
             title="Modules Completed"
-            value={stats?.completedModules || 0}
+            value={(stats as any)?.completedModules || 0}
             icon={BookOpen}
             color="primary"
             isLoading={statsLoading}
@@ -110,7 +110,7 @@ export default function Dashboard() {
           />
           <StatsCard
             title="Badges Earned"
-            value={stats?.badges || 0}
+            value={(stats as any)?.badges || 0}
             icon={Trophy}
             color="success"
             isLoading={statsLoading}
@@ -118,7 +118,7 @@ export default function Dashboard() {
           />
           <StatsCard
             title="Study Hours"
-            value={stats?.studyHours || 0}
+            value={(stats as any)?.studyHours || 0}
             icon={Clock}
             color="accent"
             isLoading={statsLoading}
@@ -126,7 +126,7 @@ export default function Dashboard() {
           />
           <StatsCard
             title="Mentor Sessions"
-            value={stats?.mentorSessions || 0}
+            value={(stats as any)?.mentorSessions || 0}
             icon={Users}
             color="purple"
             isLoading={statsLoading}
@@ -189,9 +189,9 @@ export default function Dashboard() {
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {modules?.slice(0, 4).map((module: any) => (
+                  {Array.isArray(modules) ? modules.slice(0, 4).map((module: any) => (
                     <ModuleCard key={module.id} module={module} />
-                  ))}
+                  )) : null}
                 </div>
               </CardContent>
             </Card>
