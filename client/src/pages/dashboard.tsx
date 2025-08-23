@@ -3,6 +3,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { useEffect } from "react";
 import { isUnauthorizedError } from "@/lib/authUtils";
+import { useLocation } from "wouter";
 import Header from "@/components/layout/header";
 import Footer from "@/components/layout/footer";
 import StatsCard from "@/components/dashboard/stats-card";
@@ -30,6 +31,7 @@ import {
 export default function Dashboard() {
   const { user, isLoading, isAuthenticated } = useAuth();
   const { toast } = useToast();
+  const [, setLocation] = useLocation();
 
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -220,6 +222,7 @@ export default function Dashboard() {
                     <Button 
                       className="w-full bg-accent-600 text-white hover:bg-accent-700"
                       data-testid="button-solve-challenge"
+                      onClick={() => setLocation('/interview-prep')}
                     >
                       Solve Now
                     </Button>
@@ -241,6 +244,7 @@ export default function Dashboard() {
                     <Button 
                       className="w-full bg-success-600 text-white hover:bg-success-700"
                       data-testid="button-start-interview"
+                      onClick={() => setLocation('/interview-prep')}
                     >
                       Start Interview
                     </Button>
@@ -314,6 +318,7 @@ export default function Dashboard() {
                 <Button 
                   className="w-full bg-primary-600 text-white hover:bg-primary-700 flex items-center justify-center space-x-2"
                   data-testid="button-find-mentor"
+                  onClick={() => setLocation('/mentors')}
                 >
                   <Search className="w-4 h-4" />
                   <span>Find a Mentor</span>
@@ -321,6 +326,7 @@ export default function Dashboard() {
                 <Button 
                   className="w-full bg-accent-600 text-white hover:bg-accent-700 flex items-center justify-center space-x-2"
                   data-testid="button-ask-question"
+                  onClick={() => setLocation('/forum')}
                 >
                   <HelpCircle className="w-4 h-4" />
                   <span>Ask a Question</span>
@@ -328,6 +334,7 @@ export default function Dashboard() {
                 <Button 
                   className="w-full bg-success-600 text-white hover:bg-success-700 flex items-center justify-center space-x-2"
                   data-testid="button-schedule-study"
+                  onClick={() => setLocation('/modules')}
                 >
                   <CalendarPlus className="w-4 h-4" />
                   <span>Schedule Study</span>
